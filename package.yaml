@@ -1,10 +1,10 @@
 name:                SomnaScript
 version:             0.1.0.0
-github:              "githubuser/SomnaScript"
-license:             BSD3
-author:              "Author name here"
-maintainer:          "example@example.com"
-copyright:           "2022 Author name here"
+github:              "zer0-star/SomnaScript"
+license:             MIT
+author:              zer0-star
+maintainer:          zer0-star
+copyright:           "2022 zer0-star"
 
 extra-source-files:
 - README.md
@@ -17,10 +17,13 @@ extra-source-files:
 # To avoid duplicated efforts in documentation and dealing with the
 # complications of embedding Haddock markup inside cabal files, it is
 # common to point users to the README.md file.
-description:         Please see the README on GitHub at <https://github.com/githubuser/SomnaScript#readme>
+description:         Please see the README on GitHub at <https://github.com/zer0-star/SomnaScript#readme>
 
 dependencies:
 - base >= 4.7 && < 5
+- text
+- containers
+- megaparsec
 
 library:
   source-dirs: src

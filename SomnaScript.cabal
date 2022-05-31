@@ -6,13 +6,13 @@ cabal-version: 1.12
 
 name:           SomnaScript
 version:        0.1.0.0
-description:    Please see the README on GitHub at <https://github.com/githubuser/SomnaScript#readme>
-homepage:       https://github.com/githubuser/SomnaScript#readme
-bug-reports:    https://github.com/githubuser/SomnaScript/issues
-author:         Author name here
-maintainer:     example@example.com
-copyright:      2022 Author name here
-license:        BSD3
+description:    Please see the README on GitHub at <https://github.com/zer0-star/SomnaScript#readme>
+homepage:       https://github.com/zer0-star/SomnaScript#readme
+bug-reports:    https://github.com/zer0-star/SomnaScript/issues
+author:         zer0-star
+maintainer:     zer0-star
+copyright:      2022 zer0-star
+license:        MIT
 license-file:   LICENSE
 build-type:     Simple
 extra-source-files:
@@ -21,7 +21,7 @@ extra-source-files:
 
 source-repository head
   type: git
-  location: https://github.com/githubuser/SomnaScript
+  location: https://github.com/zer0-star/SomnaScript
 
 library
   exposed-modules:
@@ -32,6 +32,9 @@ library
       src
   build-depends:
       base >=4.7 && <5
+    , containers
+    , megaparsec
+    , text
   default-language: Haskell2010
 
 executable SomnaScript-exe
@@ -44,6 +47,9 @@ executable SomnaScript-exe
   build-depends:
       SomnaScript
     , base >=4.7 && <5
+    , containers
+    , megaparsec
+    , text
   default-language: Haskell2010
 
 test-suite SomnaScript-test
@@ -57,4 +63,7 @@ test-suite SomnaScript-test
   build-depends:
       SomnaScript
     , base >=4.7 && <5
+    , containers
+    , megaparsec
+    , text
   default-language: Haskell2010
