@@ -23,13 +23,19 @@ dependencies:
 - base >= 4.7 && < 5
 - text
 - containers
+- scientific
 - megaparsec
+- parser-combinators
+
+default-extensions:
+- BlockArguments
+- OverloadedStrings
 
 library:
   source-dirs: src
 
 executables:
-  SomnaScript-exe:
+  somna:
     main:                Main.hs
     source-dirs:         app
     ghc-options:
