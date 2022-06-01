@@ -40,6 +40,7 @@ library
       base >=4.7 && <5
     , containers
     , megaparsec
+    , mtl
     , parser-combinators
     , scientific
     , text
@@ -60,6 +61,7 @@ executable somna
     , base >=4.7 && <5
     , containers
     , megaparsec
+    , mtl
     , parser-combinators
     , pretty-simple
     , scientific
@@ -82,6 +84,7 @@ test-suite SomnaScript-test
     , base >=4.7 && <5
     , containers
     , megaparsec
+    , mtl
     , parser-combinators
     , scientific
     , text

@@ -1,0 +1,14 @@
+func factorial(n) {
+  if n <= 1 {
+    println("base case:", n);
+    return n;
+  }
+  println("start", n);
+  let result = n * factorial(n - 1);
+  println("end", n);
+  return result;
+}
+
+func main() {
+  println(factorial(10));
+}

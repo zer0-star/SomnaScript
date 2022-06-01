@@ -20,4 +20,4 @@ main = do
   res            <- P.parse parseProgram filename <$> T.readFile filename
   case res of
     Left  err    -> putStrLn $ P.errorBundlePretty err
-    Right parsed -> pPrint parsed
+    Right parsed -> runProgram parsed

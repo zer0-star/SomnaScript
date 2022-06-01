@@ -10,7 +10,7 @@ data SmnValue = SVInteger Integer
               | SVChar Char
               | SVBool Bool
               | SVUnit
-              | SVFunction [Text] SmnExpr
+              | SVFunction [Text] [SmnStmt]
               | SVPrimitive SmnPrimitive
               deriving (Show)
 
