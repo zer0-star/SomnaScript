@@ -31,5 +31,6 @@ data SmnStmt = SSExpr SmnExpr
              | SSReturn SmnExpr
              | SSIfElse [(SmnExpr, [SmnStmt])] (Maybe [SmnStmt])
              | SSFunc Text [Text] [SmnStmt]
+             | SSAssign Text SmnExpr
              | SSEmpty
              deriving Show

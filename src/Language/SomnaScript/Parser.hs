@@ -190,12 +190,21 @@ funcStmt = do
   body <- braces $ many stmt
   return $ SSFunc name args body
 
+assignStmt :: Parser SmnStmt
+assignStmt = P.try do
+  var <- identifier
+  operator "="
+  e <- expr
+  char ';'
+  return $ SSAssign var e
+
 stmt :: Parser SmnStmt
 stmt =
   emptyStmt
-    <|> exprStmt
     <|> letStmt
     <|> varStmt
     <|> returnStmt
     <|> ifStmt
     <|> funcStmt
+    <|> assignStmt
+    <|> exprStmt

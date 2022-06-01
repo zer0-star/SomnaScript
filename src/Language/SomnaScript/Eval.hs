@@ -116,6 +116,13 @@ exec env (SSIfElse ifs el : rest) =
   in  go ifs >> exec env rest
 exec env (SSFunc name args body : rest) =
   let env' = M.insert name (SVFunction args body, False) env in exec env' rest
+exec env (SSAssign var e : rest) = case M.lookup var env of
+  Just (_, True) -> do
+    v <- lift $ eval env e
+    let env' = M.insert var (v, True) env
+    exec env' rest
+  Just (_, False) -> error "error: cannot reassign to immutable variable"
+  Nothing -> error $ "error: undefined variable " <> show var
 
 topLevel :: [SmnStmt] -> Environment
 topLevel = foldl execTopLevelStmt initialEnv
