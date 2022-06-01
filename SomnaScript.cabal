@@ -26,8 +26,9 @@ source-repository head
 library
   exposed-modules:
       Language.SomnaScript.AST
+      Language.SomnaScript.Eval
       Language.SomnaScript.Parser
-      Lib
+      Language.SomnaScript.Value
   other-modules:
       Paths_SomnaScript
   hs-source-dirs:

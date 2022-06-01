@@ -42,7 +42,7 @@ parseProgram :: Parser [SmnStmt]
 parseProgram = return []
 
 integerLit :: Parser SmnExpr
-integerLit = lexeme $ SEInteger <$> L.signed empty integer
+integerLit = lexeme $ SEInteger <$> L.signed (return ()) integer
  where
   bin     = P.try (P.string' "0b") >> L.binary
   oct     = P.try (P.string' "0o") >> L.octal
@@ -50,7 +50,7 @@ integerLit = lexeme $ SEInteger <$> L.signed empty integer
   integer = bin <|> oct <|> hex <|> L.decimal
 
 floatLit :: Parser SmnExpr
-floatLit = lexeme $ SEFloat . toRealFloat <$> L.signed empty L.scientific
+floatLit = lexeme $ SEFloat <$> L.signed (return ()) L.float
 
 stringLit :: Parser SmnExpr
 stringLit =
@@ -75,8 +75,8 @@ operator op = lexeme $ P.string op <* P.notFollowedBy opChars
 
 aexpr :: Parser SmnExpr
 aexpr =
-  integerLit
-    <|> floatLit
+  P.try floatLit
+    <|> integerLit
     <|> stringLit
     <|> charLit
     <|> boolLit
