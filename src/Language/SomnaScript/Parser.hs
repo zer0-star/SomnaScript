@@ -5,6 +5,8 @@ import           Control.Monad.Combinators.Expr
 import           Data.Char
 import           Data.Function
 import           Data.Functor
+import qualified Data.List.NonEmpty            as NE
+import           Data.Maybe
 import           Data.Scientific
 import qualified Data.Set                      as S
 import           Data.Text                      ( Text )
@@ -29,17 +31,29 @@ lexeme = L.lexeme sc
 char :: Char -> Parser Char
 char = lexeme . P.char
 
+parens :: Parser a -> Parser a
+parens = P.between (char '(') (char ')')
+
+braces :: Parser a -> Parser a
+braces = P.between (char '{') (char '}')
+
 identifier :: Parser Text
-identifier = lexeme $ T.cons <$> hd <*> tl
+identifier = lexeme $ P.try do
+  t <- T.cons <$> hd <*> tl
+  if t `S.member` reserved
+    then P.unexpected . P.Tokens . NE.fromList $ "reserved keyword " <> show t
+    else return t
  where
   hd = P.letterChar
   tl = P.takeWhileP Nothing isAlphaNum
+  reserved =
+    S.fromList ["if", "else", "func", "let", "var", "for", "while", "return"]
 
 keyword :: Text -> Parser ()
-keyword kw = lexeme $ P.string kw >> P.notFollowedBy P.alphaNumChar
+keyword kw = lexeme . P.try $ P.string kw >> P.notFollowedBy P.alphaNumChar
 
 parseProgram :: Parser [SmnStmt]
-parseProgram = return []
+parseProgram = many stmt
 
 integerLit :: Parser SmnExpr
 integerLit = lexeme $ SEInteger <$> L.signed (return ()) integer
@@ -70,7 +84,7 @@ variable :: Parser SmnExpr
 variable = SEVar <$> identifier
 
 operator :: Text -> Parser Text
-operator op = lexeme $ P.string op <* P.notFollowedBy opChars
+operator op = lexeme . P.try $ P.string op <* P.notFollowedBy opChars
   where opChars = P.oneOf ['+', '-', '*', '/', '&', '|', '>', '=', '<']
 
 aexpr :: Parser SmnExpr
@@ -81,7 +95,7 @@ aexpr =
     <|> charLit
     <|> boolLit
     <|> variable
-    <|> P.between (char '(') (char ')') expr
+    <|> parens expr
 
 fexpr :: Parser SmnExpr
 fexpr = do
@@ -90,13 +104,13 @@ fexpr = do
   return $ foldl (&) e calls
  where
   normal = do
-    args <- P.between (char '(') (char ')') $ P.sepBy expr (char ',')
+    args <- parens $ P.sepBy expr (char ',')
     return \e -> SECall e args
 
   ufcs = do
     char '.'
     var  <- variable
-    args <- P.between (char '(') (char ')') $ P.sepBy expr (char ',')
+    args <- parens $ P.sepBy expr (char ',')
     return \e -> SECall var (e : args)
 
 expr :: Parser SmnExpr
@@ -115,3 +129,73 @@ expr = makeExprParser
  where
   infl op node = InfixL $ operator op $> (\e1 e2 -> SEInfix e1 node e2)
   infn op node = InfixN $ operator op $> (\e1 e2 -> SEInfix e1 node e2)
+
+emptyStmt :: Parser SmnStmt
+emptyStmt = char ';' $> SSEmpty
+
+exprStmt :: Parser SmnStmt
+exprStmt = SSExpr <$> expr <* char ';'
+
+letStmt :: Parser SmnStmt
+letStmt = do
+  keyword "let"
+  ident <- identifier
+  operator "="
+  e <- expr
+  char ';'
+  return $ SSLet ident e
+
+varStmt :: Parser SmnStmt
+varStmt = do
+  keyword "var"
+  ident <- identifier
+  operator "="
+  e <- expr
+  char ';'
+  return $ SSVar ident e
+
+returnStmt :: Parser SmnStmt
+returnStmt = do
+  keyword "return"
+  e <- expr
+  char ';'
+  return $ SSReturn e
+
+ifStmt :: Parser SmnStmt
+ifStmt = do
+  ifc  <- ifClause
+  eics <- many elseifClause
+  elc  <- elseClause
+  return $ SSIfElse (ifc : eics) elc
+ where
+  ifClause = do
+    keyword "if"
+    e     <- expr
+    stmts <- braces $ many stmt
+    return (e, stmts)
+  elseifClause = do
+    P.try (keyword "else" >> keyword "if")
+    e     <- expr
+    stmts <- braces $ many stmt
+    return (e, stmts)
+  elseClause = do
+    p <- P.optional $ keyword "else"
+    if isJust p then Just <$> braces (many stmt) else return Nothing
+
+funcStmt :: Parser SmnStmt
+funcStmt = do
+  keyword "func"
+  name <- identifier
+  args <- parens $ P.sepBy identifier (char ',')
+  body <- braces $ many stmt
+  return $ SSFunc name args body
+
+stmt :: Parser SmnStmt
+stmt =
+  emptyStmt
+    <|> exprStmt
+    <|> letStmt
+    <|> varStmt
+    <|> returnStmt
+    <|> ifStmt
+    <|> funcStmt

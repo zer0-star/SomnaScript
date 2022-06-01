@@ -29,8 +29,7 @@ data SmnStmt = SSExpr SmnExpr
              | SSLet Text SmnExpr
              | SSVar Text SmnExpr
              | SSReturn SmnExpr
-             | SSIfElse [SmnIfClause]
+             | SSIfElse [(SmnExpr, [SmnStmt])] (Maybe [SmnStmt])
              | SSFunc Text [Text] [SmnStmt]
-
-data SmnIfClause = SICIf SmnExpr [SmnStmt]
-                 | SICElse [SmnStmt]
+             | SSEmpty
+             deriving Show

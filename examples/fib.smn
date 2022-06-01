@@ -1,0 +1,13 @@
+func fib1(n) {
+  if n <= 1 {
+    return n;
+  } else {
+    let p = fib1(n-1);
+    var q = p + fib1(n-2);
+    return q - fib1(n-1) + p;
+  }
+}
+
+func main() {
+  println(fib1(10));
+}

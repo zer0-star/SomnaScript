@@ -44,6 +44,7 @@ executables:
     - -with-rtsopts=-N
     dependencies:
     - SomnaScript
+    - pretty-simple
 
 tests:
   SomnaScript-test:

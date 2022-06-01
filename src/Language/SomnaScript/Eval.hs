@@ -7,12 +7,12 @@ import           Language.SomnaScript.AST
 import           Language.SomnaScript.Value
 
 
-type Environment = M.Map Text SmnValue
+type Environment = M.Map Text (SmnValue, Bool)
 
 initialEnv :: Environment
 initialEnv = M.fromList
   [primitive "pritn" SPPrint, primitive "println" SPPrintln]
-  where primitive ident p = (ident, SVPrimitive p)
+  where primitive ident p = (ident, (SVPrimitive p, False))
 
 eval :: Environment -> SmnExpr -> SmnValue
 eval env (SEInteger v) = SVInteger v
@@ -21,15 +21,16 @@ eval env (SEText    v) = SVText v
 eval env (SEChar    v) = SVChar v
 eval env (SEBool    v) = SVBool v
 eval env (SEVar     x) = case M.lookup x env of
-  Just v  -> v
-  Nothing -> error $ "error: undefined variable " <> show x
+  Just (v, _) -> v
+  Nothing     -> error $ "error: undefined variable " <> show x
 eval env (SECall f args) =
   let f'    = eval env f
       args' = map (eval env) args
   in  case f' of
         SVFunction xs body -> if length xs == length args
           then
-            let env' = M.union (M.fromList $ zip xs args') env
+            let env' =
+                  M.union (M.fromList $ zip xs (zip args' $ repeat True)) env
             in  eval env' body
           else
             error
